@@ -16,7 +16,7 @@ import { parseM3U, GroupedChannels, Channel } from './services/m3uParser';
 import { StreamPlayer } from './components/StreamPlayer';
 import { ChannelCard } from './components/ChannelCard';
 
-const M3U_PLAYLIST_URL = "http://localhost:9191/output/m3u?direct=true"; 
+const M3U_PLAYLIST_URL = "https://catalyze-visible-sixties.ngrok-free.dev/output/m3u"; 
 
 export default function App() {
   const [allChannels, setAllChannels] = useState<Channel[]>([]);
