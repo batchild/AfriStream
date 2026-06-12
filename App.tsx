@@ -16,7 +16,7 @@ import { parseM3U, GroupedChannels, Channel } from './services/m3uParser';
 import { StreamPlayer } from './components/StreamPlayer';
 import { ChannelCard } from './components/ChannelCard';
 
-const M3U_PLAYLIST_URL = "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8"; 
+const M3U_PLAYLIST_URL = "https://iptv-org.github.io/iptv/index.m3u"; 
 
 export default function App() {
   const [allChannels, setAllChannels] = useState<Channel[]>([]);
