@@ -16,7 +16,7 @@ import { parseM3U, GroupedChannels, Channel } from './services/m3uParser';
 import { StreamPlayer } from './components/StreamPlayer';
 import { ChannelCard } from './components/ChannelCard';
 
-const M3U_PLAYLIST_URL = "https://://dropboxusercontent.com/scl/fi/6ka99mk91x4zcem19n02g/my-iptv-channels-3.m3u?rlkey=ww17sugg48blq9r6mtlaenbue&st=rap29g3p&dl=1"; 
+const M3U_PLAYLIST_URL = "https://dropboxusercontent.com";
 
 export default function App() {
   const [allChannels, setAllChannels] = useState<Channel[]>([]);
@@ -31,19 +31,23 @@ export default function App() {
   // 💡 State to toggle the global header menu dropdown
   const [isDropdownOpen, setIsDropdownOpen] = useState<boolean>(false);
 
-  useEffect(() => {
-    async function loadPlaylist() {
-      try {
-        setIsLoading(true);
-        setErrorMessage(null);
+useEffect(() => {
+  async function loadPlaylist() {
+    try {
+      setIsLoading(true);
+      setErrorMessage(null);
 
-        const response = await fetch(M3U_PLAYLIST_URL);
-        if (!response.ok) {
-          throw new Error(`Server returned HTTP status ${response.status}`);
-        }
+      // ✅ Pass the clean static URL string directly into fetch
+      const response = await fetch(M3U_PLAYLIST_URL);
+      if (!response.ok) {
+        throw new Error(`Server returned HTTP status ${response.status}`);
+      }
 
-        const rawM3uText = await response.text();
-        const parsedGroups = parseM3U(rawM3uText);
+      const rawM3uText = await response.text();
+      const parsedGroups = parseM3U(rawM3uText);
+      
+      // ... rest of your parsing code remains unchanged
+
 
         const masterList: Channel[] = [];
         Object.keys(parsedGroups).forEach((cat) => {
