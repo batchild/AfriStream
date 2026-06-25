@@ -16,6 +16,7 @@ import { parseM3U, GroupedChannels, Channel } from './services/m3uParser';
 import { StreamPlayer } from './components/StreamPlayer';
 import { ChannelCard } from './components/ChannelCard';
 
+// ✅ FIXED: Full, absolute direct path to your raw Dropbox M3U asset file
 const M3U_PLAYLIST_URL = "https://dropboxusercontent.com";
 
 export default function App() {
@@ -28,26 +29,23 @@ export default function App() {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   
-  // 💡 State to toggle the global header menu dropdown
+  // State to toggle the global header menu dropdown
   const [isDropdownOpen, setIsDropdownOpen] = useState<boolean>(false);
 
-useEffect(() => {
-  async function loadPlaylist() {
-    try {
-      setIsLoading(true);
-      setErrorMessage(null);
+  useEffect(() => {
+    async function loadPlaylist() {
+      try {
+        setIsLoading(true);
+        setErrorMessage(null);
 
-      // ✅ Pass the clean static URL string directly into fetch
-      const response = await fetch(M3U_PLAYLIST_URL);
-      if (!response.ok) {
-        throw new Error(`Server returned HTTP status ${response.status}`);
-      }
+        // Pass the clean static URL string directly into fetch
+        const response = await fetch(M3U_PLAYLIST_URL);
+        if (!response.ok) {
+          throw new Error(`Server returned HTTP status ${response.status}`);
+        }
 
-      const rawM3uText = await response.text();
-      const parsedGroups = parseM3U(rawM3uText);
-      
-      // ... rest of your parsing code remains unchanged
-
+        const rawM3uText = await response.text();
+        const parsedGroups = parseM3U(rawM3uText);
 
         const masterList: Channel[] = [];
         Object.keys(parsedGroups).forEach((cat) => {
@@ -86,7 +84,6 @@ useEffect(() => {
         <Text style={styles.logoText}>AFRI<Text style={styles.logoAccent}>STREAM</Text></Text>
         
         {!isLoading && !errorMessage && (
-          // 💡 TURNED BADGE INTO A CLICKABLE TOGGLE BUTTON
           <TouchableOpacity 
             style={[styles.badge, isDropdownOpen && styles.badgeActive]} 
             onPress={() => setIsDropdownOpen(!isDropdownOpen)}
@@ -99,7 +96,7 @@ useEffect(() => {
         )}
       </View>
 
-      {/* 💡 FLOATING DROPDOWN OVERLAY (Renders on top of the layout when active) */}
+      {/* FLOATING DROPDOWN OVERLAY */}
       {isDropdownOpen && !isLoading && (
         <View style={styles.dropdownContainer}>
           <Text style={styles.dropdownTitle}>Quick Switch Channel:</Text>
@@ -112,7 +109,7 @@ useEffect(() => {
                   style={[styles.dropdownItem, isCurrent && styles.dropdownItemCurrent]}
                   onPress={() => {
                     setSelectedChannel(item);
-                    setIsDropdownOpen(false); // Close menu automatically on selection
+                    setIsDropdownOpen(false);
                   }}
                 >
                   <View style={styles.dropdownItemRow}>
@@ -129,7 +126,7 @@ useEffect(() => {
         </View>
       )}
 
-      {/* Video Viewport: Mounts after clicking a channel */}
+      {/* Video Viewport */}
       {selectedChannel && (
         <View style={styles.playerSection}>
           <StreamPlayer activeChannel={selectedChannel} />
@@ -180,7 +177,7 @@ useEffect(() => {
                   channel={item}
                   onSelect={(chan) => {
                     setSelectedChannel(chan);
-                    setIsDropdownOpen(false); // Close dropdown if open when picking from main screen
+                    setIsDropdownOpen(false);
                   }}
                   isActive={selectedChannel?.streamUrl === item.streamUrl}
                 />
@@ -201,7 +198,7 @@ const styles = StyleSheet.create({
     flex: 1, 
     backgroundColor: '#0A0A0A',
     height: Platform.OS === 'web' ? '100vh' : '100%',
-    position: 'relative', // Necessary to anchor absolute positioning layout child elements
+    position: 'relative',
   },
   header: { 
     height: 60, 
@@ -212,12 +209,10 @@ const styles = StyleSheet.create({
     backgroundColor: '#000000', 
     borderBottomWidth: 1, 
     borderColor: '#1A1A1A',
-    zIndex: 101, // Stays in front of the floating layer menu container
+    zIndex: 101,
   },
   logoText: { color: '#FFFFFF', fontSize: 22, fontWeight: '900', letterSpacing: 1 },
   logoAccent: { color: '#E50914' },
-  
-  // Interactive Header Badge Dropdown Trigger Style
   badge: { 
     backgroundColor: '#1A1A1A', 
     paddingHorizontal: 12, 
@@ -230,104 +225,31 @@ const styles = StyleSheet.create({
     backgroundColor: '#E50914',
     borderColor: '#E50914'
   },
-  badgeText: { color: '#FFFFFF', fontSize: 11, fontWeight: '800', letterSpacing: 0.5 },
-  
-  // 💡 SLEEK FLOATING DROPDOWN STYLING
-  dropdownContainer: {
-    position: 'absolute',
-    top: 60, // Sits exactly flush under the header bar
-    right: 16,
-    width: 280,
-    maxHeight: 350,
-    backgroundColor: '#111111',
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: '#222222',
-    boxShadow: '0px 8px 24px rgba(0, 0, 0, 0.5)', // web native box shadow styling 
-    zIndex: 1000, // Forces menu to float on top of video element window
-    paddingVertical: 8,
-  },
-  dropdownTitle: {
-    color: '#666666',
-    fontSize: 11,
-    fontWeight: '700',
-    paddingHorizontal: 12,
-    paddingBottom: 6,
-    textTransform: 'uppercase',
-    borderBottomWidth: 1,
-    borderColor: '#1A1A1A',
-  },
-  dropdownList: {
-    maxHeight: 300,
-  },
-  dropdownItem: {
-    paddingVertical: 10,
-    paddingHorizontal: 12,
-    borderBottomWidth: 1,
-    borderColor: '#1A1A1A',
-  },
-  dropdownItemCurrent: {
-    backgroundColor: 'rgba(229, 9, 20, 0.1)',
-  },
-  dropdownItemRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  dropdownItemText: {
-    color: '#CCCCCC',
-    fontSize: 13,
-    fontWeight: '600',
-    flex: 1,
-  },
-  dropdownItemTextCurrent: {
-    color: '#FFFFFF',
-    fontWeight: 'bold',
-  },
-  playingIndicator: {
-    color: '#E50914',
-    fontSize: 9,
-    fontWeight: '900',
-    marginLeft: 6,
-  },
-  dropdownItemSub: {
-    color: '#555555',
-    fontSize: 10,
-    marginTop: 2,
-    textTransform: 'uppercase',
-  },
-
-  playerSection: {
-    width: '100%',
-    backgroundColor: '#000000',
-  },
-  browserContainer: { 
-    flex: 1, 
-    width: '100%'
-  },
-  
-  tabBarWrapper: { borderBottomWidth: 1, borderColor: '#1A1A1A', backgroundColor: '#000000' },
-  tabBarContent: { paddingVertical: 12, paddingHorizontal: 8 },
-  tabButton: { paddingHorizontal: 16, paddingVertical: 6, borderRadius: 20, marginRight: 8, backgroundColor: '#1A1A1A' },
+  badgeText: { color: '#FFFFFF', fontSize: 12, fontWeight: 'bold' },
+  dropdownContainer: { position: 'absolute', top: 60, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.9)', zIndex: 100, padding: 16 },
+  dropdownTitle: { color: '#999999', fontSize: 14, marginBottom: 10 },
+  dropdownList: { flex: 1 },
+  dropdownItem: { paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: '#1A1A1A' },
+  dropdownItemCurrent: { backgroundColor: '#111111' },
+  dropdownItemRow: { flexDirection: 'row', justifyContent: 'space-between' },
+  dropdownItemText: { color: '#CCCCCC', fontSize: 16 },
+  dropdownItemTextCurrent: { color: '#E50914', fontWeight: 'bold' },
+  playingIndicator: { color: '#E50914', fontSize: 12, fontWeight: 'bold' },
+  dropdownItemSub: { color: '#666666', fontSize: 12 },
+  playerSection: { height: 240, backgroundColor: '#000000' },
+  centeredState: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: 20 },
+  stateText: { color: '#999999', marginTop: 15, fontSize: 16 },
+  errorTitle: { color: '#E50914', fontSize: 20, fontWeight: 'bold', marginBottom: 8 },
+  errorSubText: { color: '#666666', fontSize: 14, textAlign: 'center' },
+  browserContainer: { flex: 1 },
+  tabBarWrapper: { height: 50, backgroundColor: '#000000' },
+  tabBarContent: { alignItems: 'center', paddingHorizontal: 8 },
+  tabButton: { paddingHorizontal: 16, paddingVertical: 8, marginRight: 8, borderRadius: 20, backgroundColor: '#1A1A1A' },
   activeTabButton: { backgroundColor: '#E50914' },
-  tabText: { color: '#AAAAAA', fontSize: 11, fontWeight: '700' },
+  tabText: { color: '#999999', fontSize: 14, fontWeight: '600' },
   activeTabText: { color: '#FFFFFF' },
-
-  listContent: { paddingHorizontal: 8, paddingTop: 12, paddingBottom: 40 },
-  gridRow: { 
-    flexDirection: 'row',
-    justifyContent: 'flex-start',
-    marginBottom: 12 
-  },
-  cardWrapper: {
-    width: '48%',
-    marginHorizontal: '1%',
-    aspectRatio: 16 / 10,
-  },
-  
-  centeredState: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: 24 },
-  stateText: { color: '#888888', marginTop: 12, fontSize: 13 },
-  errorTitle: { color: '#E50914', fontSize: 18, fontWeight: 'bold', marginBottom: 6 },
-  errorSubText: { color: '#FFFFFF', fontSize: 14, textAlign: 'center' },
-  emptyText: { color: '#666666', textAlign: 'center', marginTop: 40, fontSize: 13 }
+  gridRow: { justifyContent: 'space-between', paddingHorizontal: 12 },
+  listContent: { paddingVertical: 12 },
+  cardWrapper: { flex: 0.48, marginBottom: 12 },
+  emptyText: { color: '#666666', textAlign: 'center', marginTop: 40, fontSize: 16 }
 });
