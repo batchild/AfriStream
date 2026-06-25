@@ -16,7 +16,7 @@ import { parseM3U, GroupedChannels, Channel } from './services/m3uParser';
 import { StreamPlayer } from './components/StreamPlayer';
 import { ChannelCard } from './components/ChannelCard';
 
-const M3U_PLAYLIST_URL = "https://raw.githubusercontent.com/Free-TV/IPTV/master/playlist.m3u8"; 
+const M3U_PLAYLIST_URL = "https://www.dropbox.com/scl/fi/6ka99mk91x4zcem19n02g/my-iptv-channels-3.m3u?rlkey=ww17sugg48blq9r6mtlaenbue&st=rap29g3p&dl=1"; 
 
 export default function App() {
   const [allChannels, setAllChannels] = useState<Channel[]>([]);
